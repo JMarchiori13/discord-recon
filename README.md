@@ -131,6 +131,20 @@ See [docs/modules.md](docs/modules.md) for per-module output fields and
 limitations, [docs/methodology.md](docs/methodology.md) for tradecraft and
 the ToS/ethics boundary, and [docs/lab.md](docs/lab.md) for safe test values.
 
+## Visualizations
+
+<p align="center">
+  <img src="docs/assets/attack-matrix.png" alt="ATT&CK technique coverage — Discord recon" width="90%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/module-sources.png" alt="Endpoints per auth tier" width="70%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/roadmap-status.png" alt="Roadmap status" width="45%">
+</p>
+
 ## Roadmap
 
 - [ ] Guild discovery research (disboard/top.gg public listing analysis)
