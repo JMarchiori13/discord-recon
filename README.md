@@ -22,21 +22,11 @@
 
 ## Demo
 
-<!-- Placeholder: terminal GIF demo (like osint-recon's docs/assets/demo.gif) will land here. -->
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="discord-recon demo — invite intelligence and snowflake decoding" width="700">
+</p>
 
-```
-$ discord-recon invite discord.gg/discord-developers
-
-Invite intelligence
--------------------
-Field               Value
-------------------  -------------------------------------------------------------
-Guild               Discord Developers (613425648685547541)
-Approx. members     294043
-Approx. online      58212
-Verification level  3 — High (member >10 min)
-Boost tier          3 — Level 3 (61 boosts)
-```
+<p align="center"><em>Invite intelligence on a public guild, then offline snowflake decoding — real output, keyless tier.</em></p>
 
 ## Overview
 
