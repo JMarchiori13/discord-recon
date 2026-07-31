@@ -68,6 +68,14 @@ enum Commands {
     Invite {
         /// Invite code or URL (e.g. discord.gg/python, or '-' for stdin).
         target: String,
+        /// Persist this lookup to the local tracking store for `history`.
+        #[arg(long)]
+        track: bool,
+    },
+    /// Show the recorded time series for a tracked invite (local, no network).
+    History {
+        /// Invite code or URL previously recorded with `invite --track`.
+        target: String,
     },
     /// Guild widget intelligence (KEYLESS when the server widget is enabled).
     Guild {
@@ -237,6 +245,53 @@ fn report(cli: &Cli, outputs: &[ModuleOutput]) -> Result<()> {
     Ok(())
 }
 
+/// Persist invite snapshots to the local tracking store (`invite --track`).
+fn record_invite_snapshots(outputs: &[ModuleOutput]) {
+    let path = match modules::tracking::store_path() {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("{} cannot locate tracking store: {e:#}", "[warn]".yellow());
+            return;
+        }
+    };
+
+    for out in outputs {
+        let j = &out.json;
+        let code = j.get("code").and_then(|v| v.as_str()).unwrap_or_default();
+        let guild = j.get("guild");
+        let rec = modules::tracking::TrackRecord {
+            timestamp: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+            invite_code: code.to_string(),
+            guild_id: guild
+                .and_then(|g| g.get("id"))
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string(),
+            guild_name: guild
+                .and_then(|g| g.get("name"))
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string(),
+            approx_members: j
+                .get("approximate_member_count")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0),
+            approx_online: j
+                .get("approximate_presence_count")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0),
+        };
+        match modules::tracking::record(&path, rec) {
+            Ok(()) => eprintln!(
+                "{} snapshot recorded for {code} ({})",
+                "[ok]".green(),
+                path.display()
+            ),
+            Err(e) => eprintln!("{} tracking store write failed: {e:#}", "[warn]".yellow()),
+        }
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -248,9 +303,18 @@ fn main() -> Result<()> {
         .context("initializing HTTP client")?;
 
     let outputs: Vec<ModuleOutput> = match &cli.command {
-        Commands::Invite { target } => {
+        Commands::Invite { target, track } => {
             let targets = resolve_targets(target)?;
-            run_batch(&targets, |t| modules::invite::run(&client, t))
+            let outputs = run_batch(&targets, |t| modules::invite::run(&client, t));
+            if *track {
+                record_invite_snapshots(&outputs);
+            }
+            outputs
+        }
+        Commands::History { target } => {
+            let code = modules::invite::parse_invite_code(target)?;
+            let path = modules::tracking::store_path()?;
+            vec![modules::tracking::history_output(&path, &code)?]
         }
         Commands::Guild { id } => {
             let targets = resolve_targets(id)?;

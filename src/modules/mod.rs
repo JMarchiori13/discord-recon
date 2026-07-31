@@ -10,5 +10,6 @@ pub mod full;
 pub mod guild;
 pub mod invite;
 pub mod snowflake;
+pub mod tracking;
 pub mod user;
 pub mod webhook;

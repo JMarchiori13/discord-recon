@@ -22,10 +22,14 @@ pub fn parse_invite_code(raw: &str) -> Result<String> {
     let code = t
         .strip_prefix("https://discord.gg/")
         .or_else(|| t.strip_prefix("http://discord.gg/"))
+        .or_else(|| t.strip_prefix("https://www.discord.gg/"))
         .or_else(|| t.strip_prefix("discord.gg/"))
+        .or_else(|| t.strip_prefix("www.discord.gg/"))
         .or_else(|| t.strip_prefix("https://discord.com/invite/"))
         .or_else(|| t.strip_prefix("https://discordapp.com/invite/"))
         .or_else(|| t.strip_prefix("https://www.discord.com/invite/"))
+        .or_else(|| t.strip_prefix("https://canary.discord.com/invite/"))
+        .or_else(|| t.strip_prefix("https://ptb.discord.com/invite/"))
         .unwrap_or(t);
     let code = code.split(['?', '#']).next().unwrap_or(code).trim();
     if code.is_empty()
@@ -273,6 +277,22 @@ mod tests {
         );
         assert_eq!(
             parse_invite_code("https://discordapp.com/invite/python").unwrap(),
+            "python"
+        );
+        assert_eq!(
+            parse_invite_code("https://www.discord.gg/python").unwrap(),
+            "python"
+        );
+        assert_eq!(
+            parse_invite_code("www.discord.gg/python").unwrap(),
+            "python"
+        );
+        assert_eq!(
+            parse_invite_code("https://canary.discord.com/invite/python").unwrap(),
+            "python"
+        );
+        assert_eq!(
+            parse_invite_code("https://ptb.discord.com/invite/python").unwrap(),
             "python"
         );
     }

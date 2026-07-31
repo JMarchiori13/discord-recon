@@ -11,7 +11,15 @@ fn help_lists_all_subcommands() {
     let out = bin().arg("--help").output().expect("run --help");
     assert!(out.status.success());
     let stdout = String::from_utf8_lossy(&out.stdout);
-    for sub in ["invite", "guild", "snowflake", "webhook", "user", "full"] {
+    for sub in [
+        "invite",
+        "guild",
+        "snowflake",
+        "webhook",
+        "user",
+        "full",
+        "history",
+    ] {
         assert!(stdout.contains(sub), "missing subcommand {sub} in --help");
     }
 }

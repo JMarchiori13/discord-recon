@@ -98,11 +98,19 @@ pub fn print_table(title: &str, headers: &[&str], rows: &[Vec<String>]) {
                 } else {
                     cell.clone()
                 };
-                format!(
+                let padded = format!(
                     "{:<w$}",
                     truncated,
                     w = widths.get(i).copied().unwrap_or(10)
-                )
+                );
+                // Trend markers from the history module: growth green, decline red.
+                if truncated.starts_with('▲') {
+                    padded.green().to_string()
+                } else if truncated.starts_with('▼') {
+                    padded.red().to_string()
+                } else {
+                    padded
+                }
             })
             .collect();
         println!("{}", line.join("  "));
